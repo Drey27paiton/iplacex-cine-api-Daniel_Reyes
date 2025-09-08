@@ -116,15 +116,20 @@ async function handleDeleteActorByIdRequest(req, res){
 async function handleGetActoresByPeliculaRequest(req, res){
     let idPelicula = req.params.pelicula
     try{
-        await actorCollection.find({idPelicula:idPelicula}).toArray()
-        .then((data) =>{
-            if (data === null) return res.status(404).send(data)
+        if(await peliculaCollection.findOne({_id:ObjectId.createFromHexString(idPelicula)}) != null){
+            await actorCollection.find({idPelicula:idPelicula}).toArray()
+            .then((data) =>{
+                if (data === null) return res.status(404).send(data)
 
-            return res.status(200).send(data)
-        })
-        .catch((e)=>{
-            return res.status(500).send({code:e.code})
-        })
+                return res.status(200).send(data)
+            })
+            .catch((e)=>{
+                return res.status(500).send({code:e.code})
+            })
+        }else{
+            return res.status(404).send("No hay peliculas con este ID")
+        }
+
     }catch{
         return res.status(500).send("Id mal formado")
     }
